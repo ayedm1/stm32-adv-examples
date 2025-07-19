@@ -70,7 +70,8 @@ static UX_DEVICE_CLASS_AUDIO_STREAM_PARAMETER audio_stream_parameter[USBD_AUDIO_
 static uint8_t audio_stream_index = 0U;
 
 /* USER CODE BEGIN PV */
-
+extern AUDIO_DESCRIPTION        audio_speaker_description;
+extern AUDIO_CIRCULAR_BUFFER    audio_speaker_buffer;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -185,9 +186,12 @@ UINT MX_USBX_Device_Init(VOID)
 
   /* USER CODE BEGIN MX_USBX_Device_Init1 */
 
+
+
   /* Initialization of USB device */
   MX_USB_Device_Init();
 
+  USBD_AUDIO_PlaybackInit(&audio_speaker_description, &audio_speaker_buffer);
   /* USER CODE END MX_USBX_Device_Init1 */
 
   return ret;

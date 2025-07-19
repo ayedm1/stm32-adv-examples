@@ -57,7 +57,7 @@
 /* External variables --------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
 /* USER CODE BEGIN EV */
-
+extern SAI_HandleTypeDef haudio_out_sai;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -187,5 +187,15 @@ void OTG_HS_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+
+/**
+  * @brief This function handles DMA2 Stream 4 interrupt request.
+  * @param None
+  * @retval None
+  */
+void AUDIO_OUT_SAIx_DMAx_IRQHandler(void)
+{
+  HAL_DMA_IRQHandler(haudio_out_sai.hdmatx);
+}
 
 /* USER CODE END 1 */

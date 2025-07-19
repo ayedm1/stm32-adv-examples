@@ -410,7 +410,7 @@ uint16_t USBD_Get_Configuration_Number(uint8_t class_type, uint8_t interface_typ
 #define USBD_AUDIO_PLAY_DEFAULT_FREQ                  USBD_AUDIO_PLAY_FREQ_MAX
 
 #define USBD_AUDIO_PLAY_EPOUT_ADDR                    0x01U
-#define USBD_AUDIO_PLAY_EPOUT_FS_MPS                  256U
+#define USBD_AUDIO_PLAY_EPOUT_FS_MPS                  USBD_AUDIO_USB_FS_MAX_PACKET_SIZE
 #define USBD_AUDIO_PLAY_EPOUT_FS_BINTERVAL            1U
 
 #define USBD_AUDIO_CONTROL_INTERFACE_SIZE             sizeof(USBD_AUDIOCCSIfDescTypeDef)+          \
@@ -428,7 +428,9 @@ uint16_t USBD_Get_Configuration_Number(uint8_t class_type, uint8_t interface_typ
 
 /* Private macro -----------------------------------------------------------*/
 /* USER CODE BEGIN Private_macro */
-
+#define USBD_AUDIO_USB_FS_MAX_PACKET_SIZE             (((USBD_AUDIO_PLAY_DEFAULT_FREQ+999)/1000)* \
+                                                         USBD_AUDIO_PLAY_CHANNEL_COUNT*           \
+                                                         USBD_AUDIO_PLAY_RES_BYTE)
 /* USER CODE END Private_macro */
 #define __USBD_FRAMEWORK_SET_EP(epadd, eptype, epsize, HSinterval, FSinterval) do { \
                                 /* Append Endpoint descriptor to Configuration descriptor */ \

@@ -51,6 +51,7 @@ UX_DEVICE_CLASS_AUDIO *audio;
 UX_DEVICE_CLASS_AUDIO_STREAM *playback_stream;
 UX_DEVICE_CLASS_AUDIO10_CONTROL audio_control[USBD_AUDIO_STREAM_NMNBER];
 
+extern AUDIO_DESCRIPTION audio_speaker_description;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -118,8 +119,44 @@ UINT USBD_AUDIO_ControlProcess(UX_DEVICE_CLASS_AUDIO *audio_instance,
   UINT status  = UX_SUCCESS;
 
   /* USER CODE BEGIN USBD_AUDIO_ControlProcess */
-  UX_PARAMETER_NOT_USED(audio_instance);
-  UX_PARAMETER_NOT_USED(transfer);
+  UX_DEVICE_CLASS_AUDIO10_CONTROL_GROUP group;
+
+  group.ux_device_class_audio10_control_group_controls_nb = 1;
+  group.ux_device_class_audio10_control_group_controls = audio_control;
+
+  status = ux_device_class_audio10_control_process(audio, transfer, &group);
+
+  if (status == UX_SUCCESS)
+  {
+    switch(audio_control[0].ux_device_class_audio10_control_changed)
+    {
+      case UX_DEVICE_CLASS_AUDIO10_CONTROL_MUTE_CHANGED:
+
+        /* Update mute state */
+        audio_speaker_description.audio_mute = audio_control[0].ux_device_class_audio10_control_mute[0];
+
+        /* Mute/Unmute audio codec volume */
+        AUDIO_SpeakerMute(audio_speaker_description);
+
+        break;
+
+      case UX_DEVICE_CLASS_AUDIO10_CONTROL_VOLUME_CHANGED:
+
+        /* Update current volume */
+        audio_speaker_description.audio_volume_db_256 = (audio_control[0].ux_device_class_audio10_control_volume[0]);
+
+        /* Set audio volume */
+        AUDIO_SpeakerSetVolume(audio_speaker_description);
+
+        break;
+
+      case UX_DEVICE_CLASS_AUDIO10_CONTROL_FREQUENCY_CHANGED:
+        break;
+
+      default:
+        break;
+    }
+  }
   /* USER CODE END USBD_AUDIO_ControlProcess */
 
   return status;

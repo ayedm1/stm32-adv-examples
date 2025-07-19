@@ -254,7 +254,7 @@
    is 4096 bytes but can be reduced in memory constrained environments. For cd-rom support in the storage
    class, this value cannot be less than 2048.  */
 
-/* #define UX_SLAVE_REQUEST_DATA_MAX_LENGTH                 4096 */
+#define UX_SLAVE_REQUEST_DATA_MAX_LENGTH                    512
 
 /* Defined, it enables zero copy support (works if PRINTER owns endpoint buffer).
     Defined, it enables zero copy for bulk in/out endpoints (write/read). In this case, the endpoint

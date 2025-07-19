@@ -54,12 +54,6 @@ extern "C" {
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
 
-#define USBD_AUDIO_SPEAKER_MUTED                  0
-#define USBD_AUDIO_VOLUME_SPEAKER_MIN_DB_256      -6400 /* -25db == -25*256 = -6400 db */
-#define USBD_AUDIO_VOLUME_SPEAKER_MAX_DB_256      1536  /* 6db == 6*256 = 1536 db */
-#define USBD_AUDIO_VOLUME_SPEAKER_RES_DB_256      1     /* 1db == 1*256 = 256 db */
-#define USBD_AUDIO_VOLUME_SPEAKER_DEFAULT_DB_256  256   /* 1db */
-
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
@@ -70,6 +64,8 @@ UINT USBD_AUDIO_ControlProcess(UX_DEVICE_CLASS_AUDIO *audio_instance,
 VOID USBD_AUDIO_SetControlValues(VOID);
 
 /* USER CODE BEGIN EFP */
+
+
 
 /* USER CODE END EFP */
 
