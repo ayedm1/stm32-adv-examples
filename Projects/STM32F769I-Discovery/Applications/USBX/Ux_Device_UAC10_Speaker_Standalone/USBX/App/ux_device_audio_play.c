@@ -69,7 +69,7 @@ extern __IO uint32_t                    uwTick;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN PFP */
-
+static void USBD_AUDIO_DoPadding_24_32(AUDIO_CIRCULAR_BUFFER *buffer, uint8_t *data_dest, int size);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -347,11 +347,24 @@ UINT USBD_AUDIO_PlaybackInitializeDataBuffer(AUDIO_DESCRIPTION *audio_desc, AUDI
 UINT AUDIO_SpeakerInit(AUDIO_DESCRIPTION *audio_desc, AUDIO_CIRCULAR_BUFFER *buffer, AUDIO_SPEAKER_PARMETER *speaker_specific)
 {
 
-  /* Packet_length is packet maximal length */
-  speaker_specific -> packet_length = AUDIO_MS_PACKET_SIZE_FROM_AUD_DESC(audio_desc);
+  if (USBD_AUDIO_RESOLUTION_BIT(audio_speaker_description.audio_resolution) == USBD_PLAY_RES_BIT_24B)
+  {
+    /* Set nominal size of the unit packet sent using DMA to SAI */
+    speaker_specific -> injection_size = AUDIO_SPEAKER_INJECTION_LENGTH_24B(audio_desc);
 
-  /* Injection size is the nominal size of the unit packet sent using DMA to SAI */
-  speaker_specific -> injection_size = speaker_specific -> packet_length;
+
+    /* Set half size of the alternative buffer */
+    speaker_specific -> alt_buf_half_size = speaker_specific -> injection_size;
+
+    /* When the padding is needed the double buffering are required. It means that the alt_buff will contain two packet */
+    speaker_specific -> double_buff = 1U;
+
+  }
+  else
+  {
+    /* Injection size is the nominal size of the unit packet sent using DMA to SAI */
+    speaker_specific -> injection_size = AUDIO_SPEAKER_INJECTION_LENGTH_16B(audio_desc);
+  }
 
   /* Allocate memory for playback alternate buffer
    *   speaker_specific -> alt_buffer: alternative buffer used  when underrun is produced(no enough data to inject) or when padding should be added.
@@ -366,7 +379,7 @@ UINT AUDIO_SpeakerInit(AUDIO_DESCRIPTION *audio_desc, AUDIO_CIRCULAR_BUFFER *buf
 
   ux_utility_memory_set(speaker_specific -> alt_buffer, 0, speaker_specific -> injection_size);
 
-  speaker_specific -> double_buff = 0U;
+  /* Set offset binary flag. used to indicate if next packet is in the first half of alternate buffer or in the second half */
   speaker_specific -> offset = 0U;
 
 
@@ -378,7 +391,7 @@ UINT AUDIO_SpeakerInit(AUDIO_DESCRIPTION *audio_desc, AUDIO_CIRCULAR_BUFFER *buf
   speaker_specific -> data_size = speaker_specific -> injection_size;
 
   /* Configures the audio peripherals */
-  BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_AUTO, 70, (uint32_t) audio_desc -> audio_frequency,(audio_desc -> audio_resolution*8));
+  BSP_AUDIO_OUT_Init(OUTPUT_DEVICE_AUTO, 70, (uint32_t) audio_desc -> audio_frequency, USBD_AUDIO_RESOLUTION_BIT(audio_desc -> audio_resolution));
 
   /* Start DMA stream from output double buffer to codec in Circular mode launch */
   BSP_AUDIO_OUT_Play((uint16_t*) speaker_specific -> data, speaker_specific -> data_size);
@@ -514,7 +527,7 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
   if (audio_speaker_state != AUDIO_SPEAKER_OFF)
   {
 
-    if ((audio_speaker_specific.cmd&SPEAKER_CMD_EXIT) != 0U)
+    if ((audio_speaker_specific.cmd & SPEAKER_CMD_EXIT) != 0U)
     {
       /* Reset Speaker command value */
       audio_speaker_specific.cmd ^= SPEAKER_CMD_EXIT;
@@ -524,7 +537,7 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
     }
 
     /* Check if speaker should be stopped */
-    if ((audio_speaker_specific.cmd&SPEAKER_CMD_STOP) != 0U)
+    if ((audio_speaker_specific.cmd & SPEAKER_CMD_STOP) != 0U)
     {
       audio_speaker_specific.data = audio_speaker_specific.alt_buffer;
       audio_speaker_specific.data_size = audio_speaker_specific.injection_size;
@@ -545,6 +558,20 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
       audio_speaker_debug_stats_buffer[audio_speaker_debug_stats_count].time = uwTick;
 #endif /* DEBUG_AUDIO_SPEAKER */
 
+      if (USBD_AUDIO_RESOLUTION_BIT(audio_speaker_description.audio_resolution) == USBD_PLAY_RES_BIT_24B)
+      {
+        if (audio_speaker_specific.offset == 0U)
+        {
+          audio_speaker_specific.data = audio_speaker_specific.alt_buffer;
+        }
+        else
+        {
+          audio_speaker_specific.data = audio_speaker_specific.alt_buffer + audio_speaker_specific.data_size;
+        }
+
+        audio_speaker_specific.offset ^= 1;
+      }
+
       /* Prepare next size to inject */
       audio_speaker_specific.data_size = audio_speaker_specific.injection_size;
 
@@ -561,12 +588,22 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
       else
       {
 
-        audio_speaker_specific.data = audio_speaker_buffer.data + audio_speaker_buffer.rd_ptr;
+        if (USBD_AUDIO_RESOLUTION_BIT(audio_speaker_description.audio_resolution) == USBD_PLAY_RES_BIT_24B)
+        {
+
+          /* Buffer already prepared in half transfer */
+          USBD_AUDIO_DoPadding_24_32(&audio_speaker_buffer, audio_speaker_specific.data, read_length);
+        }
+        else
+        {
+
+          audio_speaker_specific.data = audio_speaker_buffer.data + audio_speaker_buffer.rd_ptr;
 
 #ifdef DEBUG_AUDIO_SPEAKER
-        audio_speaker_debug_stats_buffer[audio_speaker_debug_stats_count].data = audio_speaker_specific.data;
-        audio_speaker_debug_stats_buffer[audio_speaker_debug_stats_count].injection_size = audio_speaker_specific.data_size;
+          audio_speaker_debug_stats_buffer[audio_speaker_debug_stats_count].data = audio_speaker_specific.data;
+          audio_speaker_debug_stats_buffer[audio_speaker_debug_stats_count].injection_size = audio_speaker_specific.data_size;
 #endif /* DEBUG_AUDIO_SPEAKER */
+        }
 
         /* Increment read pointer */
         audio_speaker_buffer.rd_ptr += read_length;
@@ -578,7 +615,9 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 #ifdef DEBUG_AUDIO_SPEAKER
         audio_speaker_debug_stats_buffer[audio_speaker_debug_stats_count].read = audio_speaker_buffer.rd_ptr;
 #endif /* DEBUG_AUDIO_SPEAKER */
+
       }
+
 #ifdef DEBUG_AUDIO_SPEAKER
       if(++audio_speaker_debug_stats_count == SPEAKER_DEBUG_BUFFER_SIZE)
       {
@@ -589,4 +628,36 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
   }
 }
 
+/**
+  * @brief  AUDIO_DoPadding_24_32
+  *         padding 24bit  sample to 32 sample by adding zeros .
+  * @param  buffer:
+  * @param  data_dest:
+  * @param  size:
+  * @retval none
+  */
+static void USBD_AUDIO_DoPadding_24_32(AUDIO_CIRCULAR_BUFFER *buffer, uint8_t *data_dest, int size)
+{
+  int index1 = 0U;
+  int index2 = 0U;
+  int index3 = 0U;
+  int read_pointer;
+
+  read_pointer = buffer -> rd_ptr;
+
+  for(index1 = 0; index1 < size; index1+=3)
+  {
+    data_dest[index2++] = 0;
+
+    for(index3 = 0; index3<3; index3++)
+    {
+      if (read_pointer == buffer->size)
+      {
+        read_pointer = 0;
+      }
+
+      data_dest[index2++] = buffer->data[read_pointer++];
+    }
+  }
+}
 /* USER CODE END 2 */

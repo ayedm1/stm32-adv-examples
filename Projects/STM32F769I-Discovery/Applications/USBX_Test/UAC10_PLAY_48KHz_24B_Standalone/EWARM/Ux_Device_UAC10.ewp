@@ -363,6 +363,7 @@
                     <state>$PROJ_DIR$/../../../../../../Drivers/BSP/STM32F769I-Discovery</state>
                     <state>$PROJ_DIR$/../../../../../../Drivers/BSP/ComponentsV1/Common</state>
                     <state>$PROJ_DIR$/../../../../../../Drivers/BSP/ComponentsV1/wm8994</state>
+                    <state>$PROJ_DIR$/../USBX/App</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1145,10 +1146,10 @@
                         <name>$PROJ_DIR$\..\..\..\USBX\Ux_Device_UAC10_Speaker_Standalone\USBX\App\ux_device_audio_play.h</name>
                     </file>
                     <file>
-                        <name>$PROJ_DIR$\..\..\..\USBX\Ux_Device_UAC10_Speaker_Standalone\USBX\App\ux_device_descriptors.c</name>
+                        <name>$PROJ_DIR$\..\USBX\App\ux_device_descriptors.c</name>
                     </file>
                     <file>
-                        <name>$PROJ_DIR$\..\..\..\USBX\Ux_Device_UAC10_Speaker_Standalone\USBX\App\ux_device_descriptors.h</name>
+                        <name>$PROJ_DIR$\..\USBX\App\ux_device_descriptors.h</name>
                     </file>
                     <file>
                         <name>$PROJ_DIR$\..\..\..\USBX\Ux_Device_UAC10_Speaker_Standalone\USBX\App\ux_user.h</name>

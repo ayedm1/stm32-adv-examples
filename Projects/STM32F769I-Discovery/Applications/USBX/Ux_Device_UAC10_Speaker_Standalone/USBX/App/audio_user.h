@@ -55,8 +55,7 @@ typedef struct AUDIO_CIRCULAR_BUFFER_STRUCT
 #define VOLUME_DB_256_TO_PERCENT(volume_db_256) ((uint8_t)((((INT)(volume_db_256) - USBD_AUDIO_VOLUME_SPEAKER_MIN_DB_256)*100)/ \
                                                           (USBD_AUDIO_VOLUME_SPEAKER_MAX_DB_256 - USBD_AUDIO_VOLUME_SPEAKER_MIN_DB_256)))
 
-/* AUDIO_SAMPLE_LENGTH computes 1 sample length. It uses AUDIO_Description_t as argument */
-#define AUDIO_SAMPLE_LENGTH(audio_desc) ((audio_desc)->audio_channels_count*(audio_desc)->audio_resolution)
+#define AUDIO_SAMPLE_LENGTH(audio_desc) ((audio_desc)->audio_channels_count * (audio_desc)->audio_resolution)
 
 
 #define AUDIO_USB_PACKET_SIZE_FROM_AUD_DESC(audio_desc)         USBD_AUDIO_PACKET_SIZE_FS((audio_desc)->audio_frequency,      \
@@ -75,6 +74,17 @@ typedef struct AUDIO_CIRCULAR_BUFFER_STRUCT
 #define AUDIO_MS_MAX_PACKET_SIZE_FROM_AUD_DESC(audio_desc)     AUDIO_MS_PACKET_SIZE((audio_desc)->audio_frequency + 999, \
                                                                                     (audio_desc)->audio_channels_count,  \
                                                                                     (audio_desc)->audio_resolution)
+
+#define USBD_AUDIO_RESOLUTION_BIT(audio_res)                    (audio_res * 8)
+
+
+#define AUDIO_SPEAKER_INJECTION_LENGTH_16B(audio_desc)          AUDIO_MS_PACKET_SIZE((audio_desc)->audio_frequency,  \
+                                                                                     (audio_desc)->audio_channels_count, \
+                                                                                     (audio_desc)->audio_resolution)
+
+#define AUDIO_SPEAKER_INJECTION_LENGTH_24B(audio_desc)          AUDIO_MS_PACKET_SIZE((audio_desc)->audio_frequency,  \
+                                                                                     (audio_desc)->audio_channels_count, \
+                                                                                     (audio_desc)->audio_resolution+1)
 
 #ifdef __cplusplus
 }

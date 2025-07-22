@@ -63,8 +63,8 @@ extern "C" {
 #define USBD_AUDIO_RESTART_REQUIRED             0x40
 
 
-#define DEBUG_AUDIO_SPEAKER   /* Define when debug is required */
-#define DEBUG_AUDIO_USB       /* Define when debug USB input for playback */
+//#define DEBUG_AUDIO_SPEAKER   /* Define when debug is required */
+//#define DEBUG_AUDIO_USB       /* Define when debug USB input for playback */
 
 #ifdef DEBUG_AUDIO_SPEAKER
 #define SPEAKER_DEBUG_BUFFER_SIZE               1000
@@ -107,9 +107,9 @@ typedef struct AUDIO_SPEAKER_PARMETER_STRUCT
   uint8_t       *data;
   uint16_t      data_size;
   uint8_t*      alt_buffer;
-  uint16_t      alt_buf_half_size; /* half size of the alternative buffer */
-  uint8_t       double_buff;        /* when the padding is needed the double buffering are required. It means that the alt_buff will contain two packet */
-  uint8_t       offset ;            /* binary flag. used to indicate if next packet is in the first half of alternate buffer or in the second half */
+  uint16_t      alt_buf_half_size;
+  uint8_t       double_buff;
+  uint8_t       offset ;
   uint16_t      dma_remaining;     /* used for synchronization, it helps to provide the counter of played samples */
   uint16_t      input_threshold;
   uint8_t       flags;
