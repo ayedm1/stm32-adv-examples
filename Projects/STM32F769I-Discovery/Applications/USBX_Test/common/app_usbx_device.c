@@ -186,12 +186,11 @@ UINT MX_USBX_Device_Init(VOID)
 
   /* USER CODE BEGIN MX_USBX_Device_Init1 */
 
-
-
   /* Initialization of USB device */
   MX_USB_Device_Init();
 
   USBD_AUDIO_PlaybackInit(&audio_speaker_description, &audio_speaker_buffer);
+
   /* USER CODE END MX_USBX_Device_Init1 */
 
   return ret;

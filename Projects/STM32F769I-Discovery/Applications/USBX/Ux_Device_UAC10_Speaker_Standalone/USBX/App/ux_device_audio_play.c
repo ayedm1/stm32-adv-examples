@@ -347,6 +347,9 @@ UINT USBD_AUDIO_PlaybackInitializeDataBuffer(AUDIO_DESCRIPTION *audio_desc, AUDI
 UINT AUDIO_SpeakerInit(AUDIO_DESCRIPTION *audio_desc, AUDIO_CIRCULAR_BUFFER *buffer, AUDIO_SPEAKER_PARMETER *speaker_specific)
 {
 
+  /* Injection size is the nominal size of the unit packet sent using DMA to SAI */
+  speaker_specific -> packet_length = AUDIO_MS_PACKET_SIZE_FROM_AUD_DESC(audio_desc);
+
   if (USBD_AUDIO_RESOLUTION_BIT(audio_speaker_description.audio_resolution) == USBD_PLAY_RES_BIT_24B)
   {
     /* Set nominal size of the unit packet sent using DMA to SAI */
@@ -362,8 +365,9 @@ UINT AUDIO_SpeakerInit(AUDIO_DESCRIPTION *audio_desc, AUDIO_CIRCULAR_BUFFER *buf
   }
   else
   {
-    /* Injection size is the nominal size of the unit packet sent using DMA to SAI */
-    speaker_specific -> injection_size = AUDIO_SPEAKER_INJECTION_LENGTH_16B(audio_desc);
+    speaker_specific -> double_buff = 0U;
+
+    speaker_specific -> injection_size = speaker_specific -> packet_length;
   }
 
   /* Allocate memory for playback alternate buffer

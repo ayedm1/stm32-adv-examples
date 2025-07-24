@@ -346,10 +346,10 @@ uint16_t USBD_Get_Configuration_Number(uint8_t class_type, uint8_t interface_typ
 /* USER CODE END Private_defines */
 
 #define USBD_VID                                      0x0483
-#define USBD_PID                                      0x5408
+#define USBD_PID                                      0x5601
 #define USBD_LANGID_STRING                            1033
 #define USBD_MANUFACTURER_STRING                      "STMicroelectronics"
-#define USBD_PRODUCT_STRING                           "STM32 UAC 1.0"
+#define USBD_PRODUCT_STRING                           "STM32 UAC 1.0 48KHz 16B"
 #define USBD_SERIAL_NUMBER                            "UAC10_SPEAKER001"
 
 #define USB_DESC_TYPE_INTERFACE                       0x04U
@@ -392,6 +392,9 @@ uint16_t USBD_Get_Configuration_Number(uint8_t class_type, uint8_t interface_typ
 #define USBD_AUDIO_FREQ_16_K                          16000U
 #define USBD_AUDIO_FREQ_8_K                           8000U
 
+#define USBD_PLAY_RES_BIT_16B                         16U
+#define USBD_PLAY_RES_BIT_24B                         24U
+
 #define USBD_AUDIO_FU_CONTROL_MUTE                    0x01U
 #define USBD_AUDIO_FU_CONTROL_VOLUME                  0x02U
 
@@ -400,7 +403,7 @@ uint16_t USBD_Get_Configuration_Number(uint8_t class_type, uint8_t interface_typ
 #define USBD_AUDIO_PLAY_FEATURE_UNIT_ID               0x16U
 
 #define USBD_AUDIO_PLAY_CHANNEL_COUNT                 2U
-#define USBD_AUDIO_PLAY_RES_BIT                       16U
+#define USBD_AUDIO_PLAY_RES_BIT                       USBD_PLAY_RES_BIT_16B
 #define USBD_AUDIO_PLAY_RES_BYTE                      ((USBD_AUDIO_PLAY_RES_BIT + 7) / 8)
 #define USBD_AUDIO_PLAY_CHANNEL_MAP                   3U
 

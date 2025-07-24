@@ -350,7 +350,7 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/../Core/Inc</state>
-                    <state>$PROJ_DIR$\..\..\..\USBX\Ux_Device_UAC10_Speaker_Standalone\USBX\App</state>
+                    <state>$PROJ_DIR$\..\..\common</state>
                     <state>$PROJ_DIR$/../USBX/Target</state>
                     <state>$PROJ_DIR$/../../../../../../Drivers/STM32F7xx_HAL_Driver/Inc</state>
                     <state>$PROJ_DIR$/../../../../../../Drivers/STM32F7xx_HAL_Driver/Inc/Legacy</state>
@@ -363,6 +363,7 @@
                     <state>$PROJ_DIR$/../../../../../../Drivers/BSP/STM32F769I-Discovery</state>
                     <state>$PROJ_DIR$/../../../../../../Drivers/BSP/ComponentsV1/Common</state>
                     <state>$PROJ_DIR$/../../../../../../Drivers/BSP/ComponentsV1/wm8994</state>
+                    <state>$PROJ_DIR$\..\USBX\App</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1124,16 +1125,34 @@
                 <group>
                     <name>App</name>
                     <file>
-                        <name>$PROJ_DIR$\..\..\..\USBX\Ux_Device_UAC10_Speaker_Standalone\USBX\App\app_usbx_device.c</name>
+                        <name>$PROJ_DIR$\..\..\common\app_usbx_device.c</name>
                     </file>
                     <file>
-                        <name>$PROJ_DIR$\..\..\..\USBX\Ux_Device_UAC10_Speaker_Standalone\USBX\App\ux_device_audio.c</name>
+                        <name>$PROJ_DIR$\..\..\common\app_usbx_device.h</name>
                     </file>
                     <file>
-                        <name>$PROJ_DIR$\..\..\..\USBX\Ux_Device_UAC10_Speaker_Standalone\USBX\App\ux_device_audio_play.c</name>
+                        <name>$PROJ_DIR$\..\..\common\audio_user.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\common\ux_device_audio.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\common\ux_device_audio.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\common\ux_device_audio_play.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\common\ux_device_audio_play.h</name>
                     </file>
                     <file>
                         <name>$PROJ_DIR$\..\..\..\USBX\Ux_Device_UAC10_Speaker_Standalone\USBX\App\ux_device_descriptors.c</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\USBX\App\ux_device_descriptors.h</name>
+                    </file>
+                    <file>
+                        <name>$PROJ_DIR$\..\..\..\USBX\Ux_Device_UAC10_Speaker_Standalone\USBX\App\ux_user.h</name>
                     </file>
                 </group>
             </group>
@@ -1240,7 +1259,7 @@
         <group>
             <name>USBX</name>
             <group>
-                <name>USB/USBX/CoreSystem</name>
+                <name>CoreSystem</name>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\..\..\Middlewares\ST\usbx\common\core\src\ux_system_error_handler.c</name>
                 </file>
@@ -1357,7 +1376,7 @@
                 </file>
             </group>
             <group>
-                <name>USB/USBX/UX Device Class AUDIO Core</name>
+                <name>UX Device Class AUDIO Core</name>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\..\..\Middlewares\ST\usbx\common\usbx_device_classes\src\ux_device_class_audio10_control_process.c</name>
                 </file>
@@ -1432,7 +1451,7 @@
                 </file>
             </group>
             <group>
-                <name>USB/USBX/UX Device Class AUDIO Playback</name>
+                <name>UX Device Class AUDIO Playback</name>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\..\..\Middlewares\ST\usbx\common\usbx_device_classes\src\ux_device_class_audio_read_frame_free.c</name>
                 </file>
@@ -1444,7 +1463,7 @@
                 </file>
             </group>
             <group>
-                <name>USB/USBX/UX Device Controllers</name>
+                <name>UX Device Controllers</name>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\..\..\Middlewares\ST\usbx\common\usbx_stm32_device_controllers\ux_dcd_stm32_callback.c</name>
                 </file>
@@ -1489,7 +1508,7 @@
                 </file>
             </group>
             <group>
-                <name>USB/USBX/UX Device CoreStack</name>
+                <name>UX Device CoreStack</name>
                 <file>
                     <name>$PROJ_DIR$\..\..\..\..\..\..\Middlewares\ST\usbx\common\core\src\ux_device_stack_alternate_setting_get.c</name>
                 </file>
