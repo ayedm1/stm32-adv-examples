@@ -350,17 +350,16 @@ UINT AUDIO_SpeakerInit(AUDIO_DESCRIPTION *audio_desc, AUDIO_CIRCULAR_BUFFER *buf
   /* Injection size is the nominal size of the unit packet sent using DMA to SAI */
   speaker_specific -> packet_length = AUDIO_MS_PACKET_SIZE_FROM_AUD_DESC(audio_desc);
 
-  if (USBD_AUDIO_RESOLUTION_BIT(audio_speaker_description.audio_resolution) == USBD_PLAY_RES_BIT_24B)
-  {
-    /* Set nominal size of the unit packet sent using DMA to SAI */
-    speaker_specific -> injection_size = AUDIO_SPEAKER_INJECTION_LENGTH_24B(audio_desc);
+  /* Set nominal size of the unit packet sent using DMA to SAI */
+  speaker_specific -> injection_size = AUDIO_SPEAKER_INJECTION_LENGTH(audio_desc);
 
+  if (USBD_AUDIO_RESOLUTION_BIT(audio_desc -> audio_resolution) == USBD_PLAY_RES_BIT_24B)
+  {
+    /* When the padding is needed the double buffering are required. It means that the alt_buff will contain two packet */
+    speaker_specific -> double_buff = 1U;
 
     /* Set half size of the alternative buffer */
     speaker_specific -> alt_buf_half_size = speaker_specific -> injection_size;
-
-    /* When the padding is needed the double buffering are required. It means that the alt_buff will contain two packet */
-    speaker_specific -> double_buff = 1U;
 
   }
   else
@@ -368,6 +367,20 @@ UINT AUDIO_SpeakerInit(AUDIO_DESCRIPTION *audio_desc, AUDIO_CIRCULAR_BUFFER *buf
     speaker_specific -> double_buff = 0U;
 
     speaker_specific -> injection_size = speaker_specific -> packet_length;
+  }
+
+  /* Check if frequency equal to 44_1 */
+  if (audio_desc -> audio_frequency == USBD_AUDIO_FREQ_44_1_K)
+  {
+    speaker_specific -> double_buff = 1U;
+
+    speaker_specific -> sample_length = AUDIO_SAMPLE_LENGTH(audio_desc);
+
+    /* Packet maximal length for frequency 44_1 */
+    speaker_specific -> packet_length_max_44_1 = speaker_specific -> packet_length + speaker_specific -> sample_length;
+
+    /* Set half size of the alternative buffer */
+    speaker_specific -> alt_buf_half_size = speaker_specific -> packet_length_max_44_1;
   }
 
   /* Allocate memory for playback alternate buffer
@@ -527,6 +540,7 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
 {
   uint16_t read_length;
   uint16_t wr_distance;
+  uint16_t distance;
 
   if (audio_speaker_state != AUDIO_SPEAKER_OFF)
   {
@@ -580,7 +594,23 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
       audio_speaker_specific.data_size = audio_speaker_specific.injection_size;
 
       read_length = audio_speaker_specific.packet_length;
+
       wr_distance = USBD_AUDIO_BUFFER_FILLED_SIZE(audio_speaker_buffer);
+
+      if (audio_speaker_description.audio_frequency == USBD_AUDIO_FREQ_44_1_K)
+      {
+        /* Count injection_44_count to inject 9 packets (44 samples) then 1 packet(45 samples)*/
+        if(audio_speaker_specific.injection_44_count < 9)
+        {
+          audio_speaker_specific.injection_44_count++;
+        }
+        else
+        {
+          audio_speaker_specific.injection_44_count = 0U;
+          audio_speaker_specific.data_size = audio_speaker_specific.alt_buf_half_size;
+          read_length = audio_speaker_specific.packet_length_max_44_1;
+        }
+      }
 
       /* Check if underrun is happened */
       if(wr_distance < audio_speaker_specific.injection_size)
@@ -602,6 +632,21 @@ void BSP_AUDIO_OUT_TransferComplete_CallBack(void)
         {
 
           audio_speaker_specific.data = audio_speaker_buffer.data + audio_speaker_buffer.rd_ptr;
+
+        /* Check if audio frequency equal to 44.1KHz */
+        if (audio_speaker_description.audio_frequency == USBD_AUDIO_FREQ_44_1_K)
+        {
+          distance = audio_speaker_buffer.size - audio_speaker_buffer.rd_ptr;
+
+          if (distance < audio_speaker_specific.data_size)
+          {
+            ux_utility_memory_copy(audio_speaker_specific.alt_buffer, audio_speaker_buffer.data + audio_speaker_buffer.rd_ptr, distance);
+
+            ux_utility_memory_copy(audio_speaker_specific.alt_buffer + distance, audio_speaker_buffer.data, audio_speaker_specific.data_size - distance);
+
+            audio_speaker_specific.data = audio_speaker_specific.alt_buffer;
+          }
+        }
 
 #ifdef DEBUG_AUDIO_SPEAKER
           audio_speaker_debug_stats_buffer[audio_speaker_debug_stats_count].data = audio_speaker_specific.data;
