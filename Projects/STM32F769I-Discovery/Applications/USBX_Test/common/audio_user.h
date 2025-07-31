@@ -55,9 +55,7 @@ typedef struct AUDIO_CIRCULAR_BUFFER_STRUCT
 #define VOLUME_DB_256_TO_PERCENT(volume_db_256) ((uint8_t)((((INT)(volume_db_256) - USBD_AUDIO_VOLUME_SPEAKER_MIN_DB_256)*100)/ \
                                                           (USBD_AUDIO_VOLUME_SPEAKER_MAX_DB_256 - USBD_AUDIO_VOLUME_SPEAKER_MIN_DB_256)))
 
-#define AUDIO_SAMPLE_LENGTH(audio_desc)  (USBD_AUDIO_RESOLUTION_BIT(audio_desc -> audio_resolution) == USBD_PLAY_RES_BIT_16B) ?          \
-                                                             ((audio_desc)->audio_channels_count * (audio_desc)->audio_resolution) :     \
-                                                             ((audio_desc)->audio_channels_count * ((audio_desc)->audio_resolution + 1))
+#define AUDIO_SAMPLE_LENGTH(audio_desc)                         ((audio_desc)->audio_channels_count * (audio_desc)->audio_resolution)
 
 
 #define AUDIO_USB_PACKET_SIZE_FROM_AUD_DESC(audio_desc)         USBD_AUDIO_PACKET_SIZE_FS((audio_desc)->audio_frequency,      \

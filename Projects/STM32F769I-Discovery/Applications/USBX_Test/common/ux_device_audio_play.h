@@ -113,7 +113,6 @@ typedef struct AUDIO_SPEAKER_PARMETER_STRUCT
   uint16_t      dma_remaining;     /* used for synchronization, it helps to provide the counter of played samples */
   uint16_t      input_threshold;
   uint8_t       flags;
-  uint16_t      sample_length;
   uint16_t      packet_length_max_44_1;
   uint8_t       injection_44_count;
 }AUDIO_SPEAKER_PARMETER;

@@ -374,13 +374,21 @@ UINT AUDIO_SpeakerInit(AUDIO_DESCRIPTION *audio_desc, AUDIO_CIRCULAR_BUFFER *buf
   {
     speaker_specific -> double_buff = 1U;
 
-    speaker_specific -> sample_length = AUDIO_SAMPLE_LENGTH(audio_desc);
-
     /* Packet maximal length for frequency 44_1 */
-    speaker_specific -> packet_length_max_44_1 = speaker_specific -> packet_length + speaker_specific -> sample_length;
+    speaker_specific -> packet_length_max_44_1 = speaker_specific -> packet_length + AUDIO_SAMPLE_LENGTH(audio_desc);
 
     /* Set half size of the alternative buffer */
-    speaker_specific -> alt_buf_half_size = speaker_specific -> packet_length_max_44_1;
+
+    if (USBD_AUDIO_RESOLUTION_BIT(audio_desc -> audio_resolution) == USBD_PLAY_RES_BIT_24B)
+    {
+      /* Set half size of the alternative buffer */
+      speaker_specific -> alt_buf_half_size = speaker_specific -> injection_size + (4*(audio_desc -> audio_channels_count));
+    }
+    else
+    {
+      /* Set half size of the alternative buffer */
+      speaker_specific -> alt_buf_half_size = speaker_specific -> packet_length_max_44_1;
+    }
   }
 
   /* Allocate memory for playback alternate buffer
