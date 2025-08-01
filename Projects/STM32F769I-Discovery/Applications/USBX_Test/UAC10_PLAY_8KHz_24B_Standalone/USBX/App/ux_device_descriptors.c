@@ -53,7 +53,7 @@ uint8_t UserClassInstance[USBD_MAX_CLASS_INTERFACES] = {
 };
 
 ULONG USBD_AUDIO10_PLAYBACK_FREQENCIES[USBD_AUDIO_PLAY_FREQ_COUNT] = {
-  USBD_AUDIO_FREQ_48_K,
+  USBD_AUDIO_FREQ_8_K,
 };
 
 /* The generic device descriptor buffer that will be filled by builder
