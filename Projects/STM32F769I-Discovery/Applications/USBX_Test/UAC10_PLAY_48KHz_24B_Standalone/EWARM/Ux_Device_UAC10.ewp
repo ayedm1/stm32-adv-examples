@@ -350,8 +350,8 @@
                 <option>
                     <name>CCIncludePath2</name>
                     <state>$PROJ_DIR$/../Core/Inc</state>
-                    <state>$PROJ_DIR$\..\..\common</state>
-                    <state>$PROJ_DIR$\..\USBX\Target</state>
+                    <state>$PROJ_DIR$\..\..\common_play</state>
+                    <state>$PROJ_DIR$/../USBX/Target</state>
                     <state>$PROJ_DIR$/../../../../../../Drivers/STM32F7xx_HAL_Driver/Inc</state>
                     <state>$PROJ_DIR$/../../../../../../Drivers/STM32F7xx_HAL_Driver/Inc/Legacy</state>
                     <state>$PROJ_DIR$/../../../../../../Drivers/CMSIS/Device/ST/STM32F7xx/Include</state>
@@ -363,7 +363,7 @@
                     <state>$PROJ_DIR$/../../../../../../Drivers/BSP/STM32F769I-Discovery</state>
                     <state>$PROJ_DIR$/../../../../../../Drivers/BSP/ComponentsV1/Common</state>
                     <state>$PROJ_DIR$/../../../../../../Drivers/BSP/ComponentsV1/wm8994</state>
-                    <state>$PROJ_DIR$/../USBX/App</state>
+                    <state>$PROJ_DIR$\..\USBX\App</state>
                 </option>
                 <option>
                     <name>CCStdIncCheck</name>
@@ -1125,25 +1125,25 @@
                 <group>
                     <name>App</name>
                     <file>
-                        <name>$PROJ_DIR$\..\..\common\app_usbx_device.c</name>
+                        <name>$PROJ_DIR$\..\..\common_play\app_usbx_device.c</name>
                     </file>
                     <file>
-                        <name>$PROJ_DIR$\..\..\common\app_usbx_device.h</name>
+                        <name>$PROJ_DIR$\..\..\common_play\app_usbx_device.h</name>
                     </file>
                     <file>
-                        <name>$PROJ_DIR$\..\..\common\audio_user.h</name>
+                        <name>$PROJ_DIR$\..\..\common_play\audio_user.h</name>
                     </file>
                     <file>
-                        <name>$PROJ_DIR$\..\..\common\ux_device_audio.c</name>
+                        <name>$PROJ_DIR$\..\..\common_play\ux_device_audio.c</name>
                     </file>
                     <file>
-                        <name>$PROJ_DIR$\..\..\common\ux_device_audio.h</name>
+                        <name>$PROJ_DIR$\..\..\common_play\ux_device_audio.h</name>
                     </file>
                     <file>
-                        <name>$PROJ_DIR$\..\..\common\ux_device_audio_play.c</name>
+                        <name>$PROJ_DIR$\..\..\common_play\ux_device_audio_play.c</name>
                     </file>
                     <file>
-                        <name>$PROJ_DIR$\..\..\common\ux_device_audio_play.h</name>
+                        <name>$PROJ_DIR$\..\..\common_play\ux_device_audio_play.h</name>
                     </file>
                     <file>
                         <name>$PROJ_DIR$\..\USBX\App\ux_device_descriptors.c</name>
@@ -1152,10 +1152,7 @@
                         <name>$PROJ_DIR$\..\USBX\App\ux_device_descriptors.h</name>
                     </file>
                     <file>
-                        <name>$PROJ_DIR$\..\..\..\USBX\Ux_Device_UAC10_Speaker_Standalone\USBX\App\ux_user.h</name>
-                    </file>
-                    <file>
-                        <name>$PROJ_DIR$\..\..\common\ux_user.h</name>
+                        <name>$PROJ_DIR$\..\..\common_play\ux_user.h</name>
                     </file>
                 </group>
             </group>
