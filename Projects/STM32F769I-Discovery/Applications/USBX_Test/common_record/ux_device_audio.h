@@ -33,7 +33,7 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "ux_api.h"
 #include "ux_device_class_audio.h"
-#include "ux_device_class_audio20.h"
+#include "ux_device_class_audio10.h"
 #include "ux_device_audio_record.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -53,6 +53,11 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
+#define USBD_AUDIO_MICROPHONE_MUTED                  0
+#define USBD_AUDIO_VOLUME_MICROPHONE_MIN_DB_256      -8192 /* -32db == -32*256 = -8192 db */
+#define USBD_AUDIO_VOLUME_MICROPHONE_MAX_DB_256      8192  /* 32db == 32*256 = 8192 db */
+#define USBD_AUDIO_VOLUME_MICROPHONE_RES_DB_256      1     /* 1db == 1*256 = 256 db */
+#define USBD_AUDIO_VOLUME_MICROPHONE_DEFAULT_DB_256  0     /* 0db */
 
 /* USER CODE END EM */
 

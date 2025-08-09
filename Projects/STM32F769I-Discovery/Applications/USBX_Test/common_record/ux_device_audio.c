@@ -27,7 +27,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "ux_device_descriptors.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -47,6 +47,9 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
+UX_DEVICE_CLASS_AUDIO *audio;
+UX_DEVICE_CLASS_AUDIO_STREAM *recording_stream;
+UX_DEVICE_CLASS_AUDIO10_CONTROL audio_control[USBD_AUDIO_STREAM_NMNBER];
 
 /* USER CODE END PV */
 
@@ -69,7 +72,13 @@
 VOID USBD_AUDIO_Activate(VOID *audio_instance)
 {
   /* USER CODE BEGIN USBD_AUDIO_Activate */
-  UX_PARAMETER_NOT_USED(audio_instance);
+
+  /* Save the audio instance */
+  audio = (UX_DEVICE_CLASS_AUDIO *)audio_instance;
+
+  /* Get the audio stream instance */
+  ux_device_class_audio_stream_get(audio, 0, &recording_stream);
+
   /* USER CODE END USBD_AUDIO_Activate */
 
   return;
@@ -84,7 +93,13 @@ VOID USBD_AUDIO_Activate(VOID *audio_instance)
 VOID USBD_AUDIO_Deactivate(VOID *audio_instance)
 {
   /* USER CODE BEGIN USBD_AUDIO_Deactivate */
-  UX_PARAMETER_NOT_USED(audio_instance);
+
+  /* Reset the Audio instance */
+  audio = UX_NULL;
+
+  /* Reset the Audio stream */
+  recording_stream = UX_NULL;
+
   /* USER CODE END USBD_AUDIO_Deactivate */
 
   return;
@@ -103,8 +118,30 @@ UINT USBD_AUDIO_ControlProcess(UX_DEVICE_CLASS_AUDIO *audio_instance,
   UINT status  = UX_SUCCESS;
 
   /* USER CODE BEGIN USBD_AUDIO_ControlProcess */
-  UX_PARAMETER_NOT_USED(audio_instance);
-  UX_PARAMETER_NOT_USED(transfer);
+  UX_DEVICE_CLASS_AUDIO10_CONTROL_GROUP group;
+
+  group.ux_device_class_audio10_control_group_controls_nb = 1;
+  group.ux_device_class_audio10_control_group_controls = audio_control;
+
+  status = ux_device_class_audio10_control_process(audio_instance, transfer, &group);
+
+  if (status == UX_SUCCESS)
+  {
+    switch(audio_control[0].ux_device_class_audio10_control_changed)
+    {
+      case UX_DEVICE_CLASS_AUDIO10_CONTROL_MUTE_CHANGED:
+        break;
+
+      case UX_DEVICE_CLASS_AUDIO10_CONTROL_VOLUME_CHANGED:
+        break;
+
+      case UX_DEVICE_CLASS_AUDIO10_CONTROL_FREQUENCY_CHANGED:
+        break;
+
+      default:
+        break;
+    }
+  }
   /* USER CODE END USBD_AUDIO_ControlProcess */
 
   return status;
@@ -119,6 +156,15 @@ UINT USBD_AUDIO_ControlProcess(UX_DEVICE_CLASS_AUDIO *audio_instance,
 VOID USBD_AUDIO_SetControlValues(VOID)
 {
   /* USER CODE BEGIN USBD_AUDIO_SetControlValues */
+
+  /* Fill audio control structure */
+  audio_control[0].ux_device_class_audio10_control_sam_freq = USBD_AUDIO_RECORD_DEFAULT_FREQ;
+  audio_control[0].ux_device_class_audio10_control_fu_id = USBD_AUDIO_RECORD_FEATURE_UNIT_ID;
+  audio_control[0].ux_device_class_audio10_control_mute[0] = USBD_AUDIO_MICROPHONE_MUTED;
+  audio_control[0].ux_device_class_audio10_control_volume_min[0] = USBD_AUDIO_VOLUME_MICROPHONE_MIN_DB_256;
+  audio_control[0].ux_device_class_audio10_control_volume_max[0] = USBD_AUDIO_VOLUME_MICROPHONE_MAX_DB_256;
+  audio_control[0].ux_device_class_audio10_control_volume_res[0] = USBD_AUDIO_VOLUME_MICROPHONE_RES_DB_256;
+  audio_control[0].ux_device_class_audio10_control_volume[0] = USBD_AUDIO_VOLUME_MICROPHONE_DEFAULT_DB_256;
 
   /* USER CODE END USBD_AUDIO_SetControlValues */
 

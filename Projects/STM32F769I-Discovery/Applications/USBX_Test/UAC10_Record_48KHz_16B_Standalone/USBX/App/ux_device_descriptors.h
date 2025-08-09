@@ -392,6 +392,9 @@ uint16_t USBD_Get_Configuration_Number(uint8_t class_type, uint8_t interface_typ
 #define USBD_AUDIO_FREQ_16_K                          16000U
 #define USBD_AUDIO_FREQ_8_K                           8000U
 
+#define USBD_AUDIO_BIT_16B                            16U
+#define USBD_AUDIO_BIT_24B                            24U
+
 #define USBD_AUDIO_FU_CONTROL_MUTE                    0x01U
 #define USBD_AUDIO_FU_CONTROL_VOLUME                  0x02U
 
@@ -400,7 +403,7 @@ uint16_t USBD_Get_Configuration_Number(uint8_t class_type, uint8_t interface_typ
 #define USBD_AUDIO_RECORD_FEATURE_UNIT_ID             0x15U
 
 #define USBD_AUDIO_RECORD_CHANNEL_COUNT               2U
-#define USBD_AUDIO_RECORD_RES_BIT                     16U
+#define USBD_AUDIO_RECORD_RES_BIT                     USBD_AUDIO_BIT_16B
 #define USBD_AUDIO_RECORD_RES_BYTE                    ((USBD_AUDIO_RECORD_RES_BIT + 7) / 8)
 #define USBD_AUDIO_RECORD_CHANNEL_MAP                 3U
 
@@ -428,6 +431,14 @@ uint16_t USBD_Get_Configuration_Number(uint8_t class_type, uint8_t interface_typ
 
 /* Private macro -----------------------------------------------------------*/
 /* USER CODE BEGIN Private_macro */
+
+#define USBD_AUDIO_RECORD_FS_MAX_PACKET_SIZE          ((USBD_AUDIO_RECORD_DEFAULT_FREQ+999)/1000)* \
+                                                        USBD_AUDIO_RECORD_CHANNEL_COUNT*            \
+                                                        USBD_AUDIO_RECORD_RES_BYTE
+
+#if USBD_AUDIO_RECORD_EPIN_FS_MPS < USBD_AUDIO_RECORD_FS_MAX_PACKET_SIZE
+#error "Enpoint max packet length should greater then USBD_AUDIO_RECORD_FS_MAX_PACKET_SIZE"
+#endif
 
 /* USER CODE END Private_macro */
 #define __USBD_FRAMEWORK_SET_EP(epadd, eptype, epsize, HSinterval, FSinterval) do { \

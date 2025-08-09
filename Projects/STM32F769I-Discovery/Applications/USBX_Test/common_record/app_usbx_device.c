@@ -61,6 +61,8 @@ static UX_DEVICE_CLASS_AUDIO_PARAMETER audio_parameter;
 static UX_DEVICE_CLASS_AUDIO_STREAM_PARAMETER audio_stream_parameter[USBD_AUDIO_STREAM_NMNBER];
 static uint8_t audio_stream_index = 0U;
 
+extern AUDIO_DESCRIPTION        audio_microphone_description;
+extern AUDIO_CIRCULAR_BUFFER    audio_microphone_buffer;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -177,6 +179,12 @@ UINT MX_USBX_Device_Init(VOID)
 
   /* USER CODE BEGIN MX_USBX_Device_Init1 */
 
+  /* Initialization of USB device */
+  MX_USB_Device_Init();
+
+  /* Initialization of recording session */
+  USBD_AUDIO_RecordingInit(&audio_microphone_description, &audio_microphone_buffer);
+
   /* USER CODE END MX_USBX_Device_Init1 */
 
   return ret;
@@ -224,12 +232,54 @@ ULONG _ux_utility_time_get(VOID)
   ULONG time_tick = 0U;
 
   /* USER CODE BEGIN _ux_utility_time_get */
-
+  time_tick = HAL_GetTick();
   /* USER CODE END _ux_utility_time_get */
 
   return time_tick;
 }
 
 /* USER CODE BEGIN 2 */
+/**
+  * @brief  MX_USBX_Device_Process
+  *         Run USBX state machine.
+  * @param  arg: not used
+  * @retval none
+  */
+VOID USBX_Device_Process(VOID *arg)
+{
+  ux_device_stack_tasks_run();
+}
+
+/**
+  * @brief  MX_USB_Device_Init
+  *         Initialization of USB device.
+  * @param  none
+  * @retval none
+  */
+VOID MX_USB_Device_Init(VOID)
+{
+  /* USER CODE BEGIN USB_Device_Init_PreTreatment_0 */
+
+  /* USER CODE END USB_Device_Init_PreTreatment_0 */
+
+  MX_USB_OTG_HS_PCD_Init();
+
+  /* USER CODE BEGIN USB_Device_Init_PreTreatment_1 */
+
+  HAL_PCDEx_SetRxFiFo(&hpcd_USB_OTG_HS, 0x200);
+  HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 0, 0x80);
+  HAL_PCDEx_SetTxFiFo(&hpcd_USB_OTG_HS, 1, 0x80);
+
+  /* USER CODE END USB_Device_Init_PreTreatment_1 */
+
+  /* Initialize the device controller driver */
+  ux_dcd_stm32_initialize((ULONG)USB_OTG_HS, (ULONG)&hpcd_USB_OTG_HS);
+
+  HAL_PCD_Start(&hpcd_USB_OTG_HS);
+
+  /* USER CODE BEGIN USB_Device_Init_PostTreatment */
+
+  /* USER CODE END USB_Device_Init_PostTreatment */
+}
 
 /* USER CODE END 2 */
