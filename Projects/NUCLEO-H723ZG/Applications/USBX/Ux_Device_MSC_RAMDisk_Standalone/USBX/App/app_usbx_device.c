@@ -43,10 +43,23 @@
 
 /* Private variables ---------------------------------------------------------*/
 
+/* USER CODE BEGIN UX_Device_Memory_Buffer */
+#if defined ( __ICCARM__ ) /* IAR Compiler */
+#pragma location = ".UsbxPoolSection"
+#elif defined ( __CC_ARM ) || defined(__ARMCC_VERSION) /* ARM Compiler 5/6 */
+__attribute__((section(".UsbxPoolSection")))
+#elif defined ( __GNUC__ ) /* GNU Compiler */
+__attribute__((section(".UsbxPoolSection")))
+#endif
+/* USER CODE END UX_Device_Memory_Buffer */
+#if defined ( __ICCARM__ )
+#pragma data_alignment=4
+#endif
+__ALIGN_BEGIN static UCHAR ux_device_memory_buffer[USBX_DEVICE_APP_MEMORY_BUFFER_SIZE] __ALIGN_END;
+
 static ULONG storage_interface_number;
 static ULONG storage_configuration_number;
 static UX_SLAVE_CLASS_STORAGE_PARAMETER storage_parameter;
-static TX_THREAD ux_device_app_thread;
 
 /* USER CODE BEGIN PV */
 
@@ -57,17 +70,16 @@ __ALIGN_BEGIN UCHAR ram_disk_memory[RAM_DISK_SIZE] __ALIGN_END;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
-static VOID app_ux_device_thread_entry(ULONG thread_input);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /**
   * @brief  Application USBX Device Initialization.
-  * @param  memory_ptr: memory pointer
+  * @param  none
   * @retval status
   */
-UINT MX_USBX_Device_Init(VOID *memory_ptr)
+UINT MX_USBX_Device_Init(VOID)
 {
   UINT ret = UX_SUCCESS;
   UCHAR *device_framework_high_speed;
@@ -79,20 +91,12 @@ UINT MX_USBX_Device_Init(VOID *memory_ptr)
   UCHAR *string_framework;
   UCHAR *language_id_framework;
   UCHAR *pointer;
-  TX_BYTE_POOL *byte_pool = (TX_BYTE_POOL*)memory_ptr;
 
   /* USER CODE BEGIN MX_USBX_Device_Init0 */
 
   /* USER CODE END MX_USBX_Device_Init0 */
 
-  /* Allocate the stack for USBX Memory */
-  if (tx_byte_allocate(byte_pool, (VOID **) &pointer,
-                       USBX_DEVICE_MEMORY_STACK_SIZE, TX_NO_WAIT) != TX_SUCCESS)
-  {
-    /* USER CODE BEGIN USBX_ALLOCATE_STACK_ERROR */
-    return TX_POOL_ERROR;
-    /* USER CODE END USBX_ALLOCATE_STACK_ERROR */
-  }
+  pointer = ux_device_memory_buffer;
 
   /* Initialize USBX Memory */
   if (ux_system_initialize(pointer, USBX_DEVICE_MEMORY_STACK_SIZE, UX_NULL, 0) != UX_SUCCESS)
@@ -171,7 +175,10 @@ UINT MX_USBX_Device_Init(VOID *memory_ptr)
     ux_slave_class_storage_media_notification = USBD_STORAGE_Notification;
 
   /* USER CODE BEGIN STORAGE_PARAMETER */
-
+  storage_parameter.ux_slave_class_storage_parameter_vendor_id = (UCHAR*) USBD_VID;
+  storage_parameter.ux_slave_class_storage_parameter_product_id = (UCHAR*) USBD_PID;
+  storage_parameter.ux_slave_class_storage_parameter_product_rev = (UCHAR*) "V1.0.0";
+  storage_parameter.ux_slave_class_storage_parameter_product_serial = (UCHAR*) USBD_SERIAL_NUMBER;
   /* USER CODE END STORAGE_PARAMETER */
 
   /* Get storage configuration number */
@@ -192,27 +199,12 @@ UINT MX_USBX_Device_Init(VOID *memory_ptr)
     /* USER CODE END USBX_DEVICE_STORAGE_REGISTER_ERROR */
   }
 
-  /* Allocate the stack for device application main thread */
-  if (tx_byte_allocate(byte_pool, (VOID **) &pointer, UX_DEVICE_APP_THREAD_STACK_SIZE,
-                       TX_NO_WAIT) != TX_SUCCESS)
-  {
-    /* USER CODE BEGIN MAIN_THREAD_ALLOCATE_STACK_ERROR */
-    return TX_POOL_ERROR;
-    /* USER CODE END MAIN_THREAD_ALLOCATE_STACK_ERROR */
-  }
-
-  /* Create the device application main thread */
-  if (tx_thread_create(&ux_device_app_thread, UX_DEVICE_APP_THREAD_NAME, app_ux_device_thread_entry,
-                       0, pointer, UX_DEVICE_APP_THREAD_STACK_SIZE, UX_DEVICE_APP_THREAD_PRIO,
-                       UX_DEVICE_APP_THREAD_PREEMPTION_THRESHOLD, UX_DEVICE_APP_THREAD_TIME_SLICE,
-                       UX_DEVICE_APP_THREAD_START_OPTION) != TX_SUCCESS)
-  {
-    /* USER CODE BEGIN MAIN_THREAD_CREATE_ERROR */
-    return TX_THREAD_ERROR;
-    /* USER CODE END MAIN_THREAD_CREATE_ERROR */
-  }
-
   /* USER CODE BEGIN MX_USBX_Device_Init1 */
+
+  /* Initialization of USB device */
+  USBX_APP_Device_Init();
+
+  USBX_STORAGE_DISK_INIT();
 
   /* USER CODE END MX_USBX_Device_Init1 */
 
@@ -220,28 +212,68 @@ UINT MX_USBX_Device_Init(VOID *memory_ptr)
 }
 
 /**
-  * @brief  Function implementing app_ux_device_thread_entry.
-  * @param  thread_input: User thread input parameter.
+  * @brief  _ux_utility_interrupt_disable
+  *         USB utility interrupt disable.
+  * @param  none
   * @retval none
   */
-static VOID app_ux_device_thread_entry(ULONG thread_input)
+ALIGN_TYPE _ux_utility_interrupt_disable(VOID)
 {
-  /* USER CODE BEGIN app_ux_device_thread_entry */
+  UINT interrupt_save;
 
-  /* Initialization of USB device */
-  USBX_APP_Device_Init();
+  /* USER CODE BEGIN _ux_utility_interrupt_disable */
+  interrupt_save = __get_PRIMASK();
+  __disable_irq();
+  /* USER CODE END _ux_utility_interrupt_disable */
 
-  /* Initialization of storage disk */
-  USBX_STORAGE_DISK_INIT();
+  return interrupt_save;
+}
 
-  /* USER CODE END app_ux_device_thread_entry */
+/**
+  * @brief  _ux_utility_interrupt_restore
+  *         USB utility interrupt restore.
+  * @param  flags
+  * @retval none
+  */
+VOID _ux_utility_interrupt_restore(ALIGN_TYPE flags)
+{
+  /* USER CODE BEGIN _ux_utility_interrupt_restore */
+  __set_PRIMASK(flags);
+  /* USER CODE END _ux_utility_interrupt_restore */
+}
+
+/**
+  * @brief  _ux_utility_time_get
+  *         Get Time Tick for host timing.
+  * @param  none
+  * @retval time tick
+  */
+ULONG _ux_utility_time_get(VOID)
+{
+  ULONG time_tick = 0U;
+
+  /* USER CODE BEGIN _ux_utility_time_get */
+  time_tick = HAL_GetTick();
+  /* USER CODE END _ux_utility_time_get */
+
+  return time_tick;
 }
 
 /* USER CODE BEGIN 1 */
+/**
+  * @brief  MX_USBX_Device_Process
+  *         Run USBX state machine.
+  * @param  arg: not used
+  * @retval none
+  */
+VOID USBX_Device_Process(VOID *arg)
+{
+  ux_device_stack_tasks_run();
+}
 
 /**
-  * @brief  USBX_APP_Device_Init
-  *         Initialization of USB device.
+  * @brief USBX_APP_Device_Init
+  *        Initialization of USB device.
   * @param  none
   * @retval none
   */
